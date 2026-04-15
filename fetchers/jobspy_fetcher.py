@@ -31,8 +31,8 @@ QUERIES = [
 SITES = ["linkedin", "indeed"]
 LOCATIONS = ["Canada", "United States"]
 
-# Fetch jobs posted within the last 2 hours (buffer above our 60-min cron interval)
-HOURS_OLD = 2
+# Fetch jobs posted within the last 3 hours (generous buffer against GitHub Actions cron delays)
+HOURS_OLD = 3
 RESULTS_PER_QUERY = 30
 
 # Hard cap: Indeed lets employers "refresh" old listings so they appear in recent
