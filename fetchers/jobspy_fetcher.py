@@ -10,6 +10,7 @@ import hashlib
 import logging
 import math
 import time
+from datetime import date, datetime, timedelta
 
 from jobspy import scrape_jobs
 
@@ -33,6 +34,10 @@ LOCATIONS = ["Canada", "United States"]
 # Fetch jobs posted within the last 2 hours (buffer above our 60-min cron interval)
 HOURS_OLD = 2
 RESULTS_PER_QUERY = 30
+
+# Hard cap: Indeed lets employers "refresh" old listings so they appear in recent
+# results with their original (stale) date. Drop anything older than this.
+MAX_AGE_DAYS = 3
 
 
 def _make_job_id(title: str, company: str, url: str) -> str:
@@ -66,6 +71,20 @@ def fetch_jobs() -> list[dict]:
                     title = str(row.get("title") or "")
                     company = str(row.get("company") or "")
                     job_id = _make_job_id(title, company, url)
+
+                    # Drop stale refreshed listings (Indeed re-surfaces old jobs)
+                    raw_date = row.get("date_posted")
+                    if raw_date is not None:
+                        try:
+                            if isinstance(raw_date, (date, datetime)):
+                                posted = raw_date if isinstance(raw_date, date) else raw_date.date()
+                            else:
+                                posted = datetime.strptime(str(raw_date).strip(), "%Y-%m-%d").date()
+                            if (date.today() - posted).days > MAX_AGE_DAYS:
+                                logger.debug(f"[jobspy] Skipping stale listing ({posted}): {title} @ {company}")
+                                continue
+                        except (ValueError, TypeError):
+                            pass  # Unparseable date — let it through, Tier 1/2 will judge
 
                     # Build salary string (guard against NaN from jobspy)
                     try:
