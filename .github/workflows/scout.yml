@@ -10,7 +10,7 @@ on:
 jobs:
   scout:
     runs-on: ubuntu-latest
-    timeout-minutes: 20   # Safety net — kills the run if something hangs
+    timeout-minutes: 60   # Increased to 60m because the initial backlog with 4.1s pacing can exceed 20m
 
     steps:
       - name: Checkout repo
