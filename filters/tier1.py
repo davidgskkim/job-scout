@@ -34,10 +34,13 @@ INCLUDE_TITLE_PATTERNS = [
 # Title patterns — EXCLUDE (any match = reject)
 # ---------------------------------------------------------------------------
 EXCLUDE_TITLE_PATTERNS = [
-    # Seniority
+    # Seniority & Levels
     r"\bsenior\b", r"\bsr\.?\b", r"\bstaff\b", r"\bprincipal\b",
     r"\blead\b", r"\barchitect\b", r"\bhead\s+of\b", r"\bdirector\b",
     r"\bmanager\b", r"\bvp\b", r"\bvice\s+president\b",
+    r"\bintern\b", r"\binternship\b", r"\bco-?op\b",  # Block interns
+    r"\bsoftware (?:engineer|developer|dev)\s*(?:ii|iii|iv|v|vi|2|3|4|5|6)\b", 
+    r"\b(?:ii|iii|iv|v|vi)\b",  # Standalone suffix like "Engineer II" is caught too
     # Wrong roles
     r"\bqa\b", r"\bquality\s+assurance\b", r"\btest\s+engineer\b",
     r"\bsdet\b", r"\bautomation\s+engineer\b",
@@ -51,6 +54,15 @@ EXCLUDE_TITLE_PATTERNS = [
     r"\bbusiness\s+analyst\b", r"\bsecurity\s+engineer\b", r"\bcybersecurity\b",
     r"\bembedded\s+(systems|engineer|developer)\b",
     r"\bhardware\s+engineer\b", r"\bfirmware\s+engineer\b",
+]
+
+# ---------------------------------------------------------------------------
+# Title patterns — AUTO PASS (bypass Tier 2 directly to RELEVANT)
+# ---------------------------------------------------------------------------
+AUTO_PASS_TITLE_PATTERNS = [
+    r"\bjunior\b", r"\bjr\.?\b", r"\bentry[\s\-]?level\b",
+    r"\bnew\s+grad(s|uates?)?\b", r"\bassociate\b",
+    r"\bsoftware (?:engineer|developer|dev)\s*(?:i|1)\b",
 ]
 
 # ---------------------------------------------------------------------------
@@ -69,10 +81,10 @@ EXCLUDE_YOE_PATTERNS = [
 
     # ── Minimum required is 3+ ───────────────────────────────────────────────
 
-    # "3 years of experience", "5 years experience", "3+ years of exp"
-    # The (?:\s+[a-zA-Z0-9-]+){0,6} handles "of professional full-stack software development experience"
-    r"\b[3-9]\+?\s*years?(?:\s+[a-zA-Z0-9-]+){0,6}\s+(experience|exp)\b",
-    r"\b[1-9][0-9]\+?\s*years?(?:\s+[a-zA-Z0-9-]+){0,6}\s+(experience|exp)\b",
+    # Minimum required is 3+
+    # Scan up to 120 chars on the same line to match "experience" 
+    r"\b[3-9]\+?\s*years?(?:.{0,120}?)\b(?:experience|exp)\b",
+    r"\b[1-9][0-9]\+?\s*years?(?:.{0,120}?)\b(?:experience|exp)\b",
 
     # "3+ years" with explicit "+" even without the word "experience"
     r"\b[3-9]\+\s*years?\b",
@@ -80,12 +92,10 @@ EXCLUDE_YOE_PATTERNS = [
 
     # Ranges: "3-5 years", "4–6 yrs", "10-12 years of experience"
     r"\b[3-9][-–]\d+\s*(?:years?|yrs?|yoe)\b",
-    r"\b[1-9][0-9][-–]\d+\s*(?:years?|yrs?|yoe)\b",
-
-    # "3+ yrs", "5 yrs of experience"
-    r"\b[3-9]\+?\s*yrs?(?:\s+[a-zA-Z0-9-]+){0,6}\s+(experience|exp)\b",
-    r"\b[3-9]\+\s*yrs?\b",
-    r"\b[1-9][0-9]\+?\s*yrs?\b",
+    r"\b[2-9][-–][3-9]\s*(?:years?|yrs?|yoe)\b",       # "2-3 years", "2-5 years" (but not "1-3 years")
+    r"\b[2-9]\+?\s*years?(?:.{0,120}?)\b(?:experience|exp)\b", 
+    r"\b[2-9]\+?\s*yrs?(?:.{0,120}?)\b(?:experience|exp)\b",   
+    r"\b[2-9]\+\s*(?:years?|yrs?|yoe)\b",
 
     # YOE abbreviation: "3 YOE", "5+ YOE", "3-7 YOE"
     r"\b[3-9]\+?\s*yoe\b",
@@ -182,10 +192,10 @@ def _matches_any(text: str, patterns: list[str]) -> bool:
     return any(re.search(p, text_lower) for p in patterns)
 
 
-def is_relevant(job: dict) -> tuple[bool, str]:
+def is_relevant(job: dict) -> tuple[bool, str, bool]:
     """
-    Returns (True, "") if the job passes all Tier 1 checks,
-    or (False, reason) explaining which check failed.
+    Returns (is_relevant, reason, auto_pass)
+    - auto_pass is True if Tier 2 should be skipped
     """
     title = job.get("title", "")
     description = job.get("description", "")
@@ -193,23 +203,26 @@ def is_relevant(job: dict) -> tuple[bool, str]:
 
     # 1. Title must match a valid role
     if not _matches_any(title, INCLUDE_TITLE_PATTERNS):
-        return False, f"Title not a target role: '{title}'"
+        return False, f"Title not a target role: '{title}'", False
 
     # 2. Title must not contain exclusion terms
     if _matches_any(title, EXCLUDE_TITLE_PATTERNS):
-        return False, f"Title has excluded term: '{title}'"
+        return False, f"Title has excluded term: '{title}'", False
 
     # 3. Description must not require >2 YOE (only check if description exists)
     if description and _matches_any(description, EXCLUDE_YOE_PATTERNS):
-        return False, "Description requires too many years of experience"
+        return False, "Description requires too many years of experience", False
 
     # 4. Explicitly exclude non-target countries BEFORE checking valid locations.
-    #    This catches "Remote - India", "Remote, UK", etc.
     if location and _matches_any(location, EXCLUDE_LOCATION_PATTERNS):
-        return False, f"Location is a non-target country: '{location}'"
+        return False, f"Location is a non-target country: '{location}'", False
 
     # 5. Location must be Canada, US, or Remote (empty location = pass through)
     if location and not _matches_any(location, VALID_LOCATION_PATTERNS):
-        return False, f"Location not targeted: '{location}'"
+        return False, f"Location not targeted: '{location}'", False
 
-    return True, ""
+    # 6. Auto-pass check
+    if _matches_any(title, AUTO_PASS_TITLE_PATTERNS):
+        return True, "Auto-passed based on Junior/Entry title", True
+
+    return True, "", False

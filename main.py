@@ -75,12 +75,18 @@ def run() -> None:
     # 4. Tier 1: Hard filter (fast, no API calls)
     # ------------------------------------------------------------------
     tier1_passed: list[dict] = []
+    auto_pass_jobs: list[dict] = []
+    
     for job in new_jobs:
-        passed, reason = tier1.is_relevant(job)
-        if passed:
+        passed, reason, auto_pass = tier1.is_relevant(job)
+        if passed and auto_pass:
+            job["reason"] = f"Auto-passed by Tier 1: {reason}"
+            auto_pass_jobs.append(job)
+            logger.info(f"[T1 ✅ AUTO-PASS] {job['title']} @ {job['company']}")
+        elif passed:
             tier1_passed.append(job)
         else:
-            logger.debug(f"[T1 SKIP] {job['title']} @ {job['company']} — {reason}")
+            logger.debug(f"[T1 ❌ SKIP] {job['title']} @ {job['company']} — {reason}")
 
     logger.info(f"After Tier 1: {len(tier1_passed)} / {len(new_jobs)} passed")
 
@@ -88,6 +94,11 @@ def run() -> None:
     # 5. Tier 2: LLM filter (Gemini Flash)
     # ------------------------------------------------------------------
     final_jobs: list[dict] = []
+    
+    # 1. Add auto pass jobs
+    final_jobs.extend(auto_pass_jobs)
+    
+    # 2. Add LLM passed jobs
     for job in tier1_passed:
         decision, reason = tier2.classify(job)
         if decision == "RELEVANT":
