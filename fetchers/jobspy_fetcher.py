@@ -60,6 +60,7 @@ def fetch_jobs() -> list[dict]:
                     results_wanted=RESULTS_PER_QUERY,
                     hours_old=HOURS_OLD,
                     country_indeed="USA" if location == "United States" else "Canada",
+                    linkedin_fetch_description=True,  # fetch full job page, not just preview
                 )
 
                 for _, row in df.iterrows():
