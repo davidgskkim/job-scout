@@ -70,9 +70,9 @@ EXCLUDE_YOE_PATTERNS = [
     # ── Minimum required is 3+ ───────────────────────────────────────────────
 
     # "3 years of experience", "5 years experience", "3+ years of exp"
-    # The (?:of\s+\w+\s+)? handles "years of work experience", "years of relevant exp"
-    r"\b[3-9]\+?\s*years?\s+(?:of\s+\w+\s+)?(?:of\s+)?(experience|exp)\b",
-    r"\b[1-9][0-9]\+?\s*years?\s+(?:of\s+\w+\s+)?(?:of\s+)?(experience|exp)\b",
+    # The (?:\s+[a-zA-Z0-9-]+){0,6} handles "of professional full-stack software development experience"
+    r"\b[3-9]\+?\s*years?(?:\s+[a-zA-Z0-9-]+){0,6}\s+(experience|exp)\b",
+    r"\b[1-9][0-9]\+?\s*years?(?:\s+[a-zA-Z0-9-]+){0,6}\s+(experience|exp)\b",
 
     # "3+ years" with explicit "+" even without the word "experience"
     r"\b[3-9]\+\s*years?\b",
@@ -83,7 +83,7 @@ EXCLUDE_YOE_PATTERNS = [
     r"\b[1-9][0-9][-–]\d+\s*(?:years?|yrs?|yoe)\b",
 
     # "3+ yrs", "5 yrs of experience"
-    r"\b[3-9]\+?\s*yrs?\s+(?:of\s+)?(experience|exp)\b",
+    r"\b[3-9]\+?\s*yrs?(?:\s+[a-zA-Z0-9-]+){0,6}\s+(experience|exp)\b",
     r"\b[3-9]\+\s*yrs?\b",
     r"\b[1-9][0-9]\+?\s*yrs?\b",
 

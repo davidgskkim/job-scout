@@ -74,8 +74,9 @@ def classify(job: dict) -> tuple[str, str]:
     title = job.get("title", "")
     company = job.get("company", "")
     location = job.get("location", "")
-    # Truncate description to keep token usage low
-    description = (job.get("description") or "")[:1500]
+    # Do not truncate description! Minimum requirements are often at the bottom.
+    # gemini-2.0-flash-lite has a massive context window, tokens are not an issue.
+    description = job.get("description") or ""
 
     prompt = PROMPT_TEMPLATE.format(
         title=title,

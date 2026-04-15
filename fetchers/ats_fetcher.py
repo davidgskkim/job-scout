@@ -18,6 +18,7 @@ import os
 import time
 from pathlib import Path
 
+import re
 import requests
 
 logger = logging.getLogger(__name__)
@@ -41,7 +42,7 @@ def _make_job_id(title: str, company: str, url: str) -> str:
 # ---------------------------------------------------------------------------
 
 def _fetch_greenhouse(board_token: str) -> list[dict]:
-    url = f"https://boards-api.greenhouse.io/v1/boards/{board_token}/jobs"
+    url = f"https://boards-api.greenhouse.io/v1/boards/{board_token}/jobs?content=true"
     try:
         resp = requests.get(url, timeout=REQUEST_TIMEOUT)
         if resp.status_code != 200:
@@ -57,6 +58,11 @@ def _fetch_greenhouse(board_token: str) -> list[dict]:
         job_url = str(job.get("absolute_url") or "")
         location = str((job.get("location") or {}).get("name") or "")
         company = board_token.replace("-", " ").title()
+        
+        # Clean HTML from description
+        raw_content = str(job.get("content") or "")
+        description = re.sub(r'<[^>]+>', ' ', raw_content)
+
         job_id = _make_job_id(title, company, job_url)
 
         jobs.append({
@@ -64,7 +70,7 @@ def _fetch_greenhouse(board_token: str) -> list[dict]:
             "title": title,
             "company": company,
             "location": location,
-            "description": "",  # Greenhouse list endpoint doesn't include descriptions
+            "description": description,
             "url": job_url,
             "salary": None,
             "date_posted": None,
@@ -100,7 +106,7 @@ def _fetch_lever(company_slug: str) -> list[dict]:
         desc_parts = [str(posting.get("descriptionPlain") or "")]
         for section in posting.get("lists") or []:
             desc_parts.append(str(section.get("content") or ""))
-        description = " ".join(desc_parts)[:2000]
+        description = " ".join(desc_parts)
 
         job_id = _make_job_id(title, company, job_url)
 
@@ -142,7 +148,7 @@ def _fetch_ashby(org_slug: str) -> list[dict]:
         job_url = f"https://jobs.ashbyhq.com/{org_slug}/{posting.get('id', '')}"
         location = str(posting.get("locationName") or "")
         company = org_slug.replace("-", " ").title()
-        description = str(posting.get("descriptionPlain") or "")[:2000]
+        description = str(posting.get("descriptionPlain") or "")
         job_id = _make_job_id(title, company, job_url)
 
         jobs.append({
