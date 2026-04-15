@@ -82,13 +82,14 @@ EXCLUDE_YOE_PATTERNS = [
     # ── Minimum required is 3+ ───────────────────────────────────────────────
 
     # Minimum required is 3+
-    # Scan up to 120 chars on the same line to match "experience" 
-    r"\b[3-9]\+?\s*years?(?:.{0,120}?)\b(?:experience|exp)\b",
-    r"\b[1-9][0-9]\+?\s*years?(?:.{0,120}?)\b(?:experience|exp)\b",
+    # Scan up to 120 chars on the same line to match "experience"
+    # (?<![0-9\-\u2013]) prevents matching the upper bound of a range like "1-3 years"
+    r"(?<![0-9\-\u2013])[3-9]\+?\s*years?(?:.{0,120}?)\b(?:experience|exp)\b",
+    r"(?<![0-9\-\u2013])[1-9][0-9]\+?\s*years?(?:.{0,120}?)\b(?:experience|exp)\b",
 
     # "3+ years" with explicit "+" even without the word "experience"
-    r"\b[3-9]\+\s*years?\b",
-    r"\b[1-9][0-9]\+\s*years?\b",
+    r"(?<![0-9\-\u2013])[3-9]\+\s*years?\b",
+    r"(?<![0-9\-\u2013])[1-9][0-9]\+\s*years?\b",
 
     # Ranges: "3-5 years", "4–6 yrs", "10-12 years of experience"
     r"\b[3-9][-–]\d+\s*(?:years?|yrs?|yoe)\b",
@@ -96,13 +97,13 @@ EXCLUDE_YOE_PATTERNS = [
     r"\b2[-–][3-9]\s*(?:years?|yrs?|yoe)\b",       # "2-3 years", "2-5 years" (reject) but miss "1-3" (keep)
 
     # "3+ yrs", "5 yrs of experience"
-    r"\b[3-9]\+?\s*yrs?(?:.{0,120}?)\b(?:experience|exp)\b",
-    r"\b[3-9]\+\s*yrs?\b",
-    r"\b[1-9][0-9]\+?\s*yrs?\b",
+    r"(?<![0-9\-\u2013])[3-9]\+?\s*yrs?(?:.{0,120}?)\b(?:experience|exp)\b",
+    r"(?<![0-9\-\u2013])[3-9]\+\s*yrs?\b",
+    r"(?<![0-9\-\u2013])[1-9][0-9]\+?\s*yrs?\b",
 
     # YOE abbreviation: "3 YOE", "5+ YOE", "3-7 YOE"
-    r"\b[3-9]\+?\s*yoe\b",
-    r"\b[1-9][0-9]\+?\s*yoe\b",
+    r"(?<![0-9\-\u2013])[3-9]\+?\s*yoe\b",
+    r"(?<![0-9\-\u2013])[1-9][0-9]\+?\s*yoe\b",
 
     # Written-out numbers: "three years", "five or more years of experience"
     r"\b(three|four|five|six|seven|eight|nine|ten)\s+(or\s+more\s+)?years?\b",
@@ -110,16 +111,16 @@ EXCLUDE_YOE_PATTERNS = [
     # Explicit minimum language with 3+:
     # "minimum 3 years", "at least 4 years", "more than 3 years",
     # "over 5 years", "minimum of 3 years", "a minimum of 4 years"
-    r"\b(?:minimum|at\s+least|more\s+than|over|exceeding)\s+(?:of\s+)?[3-9]\+?\s*years?\b",
-    r"\b(?:minimum|at\s+least|more\s+than|over)\s+(?:of\s+)?[1-9][0-9]\+?\s*years?\b",
+    r"\b(?:minimum|at\s+least|more\s+than|over|exceeding)\s+(?:of\s+)?(?<![0-9\-\u2013])[3-9]\+?\s*years?\b",
+    r"\b(?:minimum|at\s+least|more\s+than|over)\s+(?:of\s+)?(?<![0-9\-\u2013])[1-9][0-9]\+?\s*years?\b",
 
     # "requires 3 years", "requiring 5+ years"
-    r"\brequires?\s+[3-9]\+?\s*years?\b",
-    r"\brequires?\s+[1-9][0-9]\+?\s*years?\b",
+    r"\brequires?\s+(?<![0-9\-\u2013])[3-9]\+?\s*years?\b",
+    r"\brequires?\s+(?<![0-9\-\u2013])[1-9][0-9]\+?\s*years?\b",
 
     # "X years required" (reversed phrasing)
-    r"\b[3-9]\+?\s*years?\s+required\b",
-    r"\b[1-9][0-9]\+?\s*years?\s+required\b",
+    r"(?<![0-9\-\u2013])[3-9]\+?\s*years?\s+required\b",
+    r"(?<![0-9\-\u2013])[1-9][0-9]\+?\s*years?\s+required\b",
 
     # ── Open-ended 2+ (signals "experienced hire", not entry-level) ─────────
 
