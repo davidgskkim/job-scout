@@ -61,7 +61,7 @@ EXCLUDE_TITLE_PATTERNS = [
 # ---------------------------------------------------------------------------
 AUTO_PASS_TITLE_PATTERNS = [
     r"\bjunior\b", r"\bjr\.?\b", r"\bentry[\s\-]?level\b",
-    r"\bnew\s+grad(s|uates?)?\b", r"\bassociate\b",
+    r"\b(?:new\s+)?grad(s|uates?)?\b", r"\bassociate\b",
     r"\bsoftware (?:engineer|developer|dev)\s*(?:i|1)\b",
 ]
 
