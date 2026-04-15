@@ -1,0 +1,41 @@
+{
+  "greenhouse": [
+    "stripe", "brex", "plaid", "coinbase", "robinhood", "rippling", "gusto",
+    "lattice", "carta", "asana", "amplitude", "airtable", "doordash",
+    "instacart", "lyft", "airbnb", "dropbox", "quora", "thumbtack",
+    "benchling", "cohere", "scale", "databricks", "snowflake",
+    "cloudflare", "datadog", "pagerduty", "squarespace", "zendesk",
+    "intercom", "segment", "mixpanel", "duolingo", "pinterest", "etsy",
+    "bumble", "notion", "reddit", "discord", "roblox", "figma",
+    "1password", "wealthsimple", "hootsuite", "shopify", "lightspeed",
+    "clio", "d2l", "geotab", "magnet-forensics", "benevity", "absorb",
+    "clearco", "dapper-labs", "trulioo", "pull-request",
+    "openai", "inflection", "adept", "perplexity",
+    "deepmind", "waymo", "cruise", "aurora",
+    "palantir", "anduril", "relativity", "epic",
+    "chime", "affirm", "klarna", "marqeta",
+    "tempus", "flatiron", "veeva",
+    "hashicorp", "confluent", "elastic", "mongodb",
+    "twilio", "sendgrid", "vonage", "bandwidth",
+    "fivetran", "airbyte", "dbt-labs", "starburst",
+    "grafana", "sentry", "highlight", "axiom"
+  ],
+  "lever": [
+    "atlassian", "buffer",
+    "foursquare", "bitly", "invision", "surveymonkey", "shutterstock",
+    "ticketmaster", "livenation", "buzzfeed", "vox",
+    "khan-academy", "coursera", "chegg",
+    "wayfair", "chewy", "rover", "hippo",
+    "compass", "opendoor", "divvy-homes",
+    "benchmark", "sequoia", "a16z"
+  ],
+  "ashby": [
+    "linear", "mercury", "retool", "loom", "vercel", "cal",
+    "slope", "ramp", "pilot", "deel", "remote",
+    "descript", "pitch", "craft", "basehub",
+    "inngest", "trigger", "resend", "neon",
+    "langchain", "weights-biases", "modal", "replicate",
+    "together", "anyscale", "determined-ai",
+    "posthog", "incident-io", "rootly", "firehydrant"
+  ]
+}
