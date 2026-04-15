@@ -110,10 +110,10 @@ def classify(job: dict) -> tuple[str, str]:
         reason = str(result.get("reason", ""))
 
         if decision not in ("RELEVANT", "SKIP"):
-            decision = "RELEVANT"
+            decision = "SKIP"
 
         return decision, reason
 
     except Exception as e:
-        logger.warning(f"[tier2] Classification failed for '{title}' — defaulting RELEVANT: {e}")
-        return "RELEVANT", "Classification unavailable — included by default"
+        logger.warning(f"[tier2] Classification failed for '{title}' — defaulting SKIP: {e}")
+        return "SKIP", "Classification unavailable — excluded by default"

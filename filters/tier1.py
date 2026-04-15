@@ -92,10 +92,13 @@ EXCLUDE_YOE_PATTERNS = [
 
     # Ranges: "3-5 years", "4–6 yrs", "10-12 years of experience"
     r"\b[3-9][-–]\d+\s*(?:years?|yrs?|yoe)\b",
-    r"\b[2-9][-–][3-9]\s*(?:years?|yrs?|yoe)\b",       # "2-3 years", "2-5 years" (but not "1-3 years")
-    r"\b[2-9]\+?\s*years?(?:.{0,120}?)\b(?:experience|exp)\b", 
-    r"\b[2-9]\+?\s*yrs?(?:.{0,120}?)\b(?:experience|exp)\b",   
-    r"\b[2-9]\+\s*(?:years?|yrs?|yoe)\b",
+    r"\b[1-9][0-9][-–]\d+\s*(?:years?|yrs?|yoe)\b",
+    r"\b2[-–][3-9]\s*(?:years?|yrs?|yoe)\b",       # "2-3 years", "2-5 years" (reject) but miss "1-3" (keep)
+
+    # "3+ yrs", "5 yrs of experience"
+    r"\b[3-9]\+?\s*yrs?(?:.{0,120}?)\b(?:experience|exp)\b",
+    r"\b[3-9]\+\s*yrs?\b",
+    r"\b[1-9][0-9]\+?\s*yrs?\b",
 
     # YOE abbreviation: "3 YOE", "5+ YOE", "3-7 YOE"
     r"\b[3-9]\+?\s*yoe\b",
