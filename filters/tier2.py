@@ -31,16 +31,14 @@ _client: genai.Client | None = None
 # gemini-2.0-flash-lite: much higher free-tier quota than gemini-2.0-flash
 GEMINI_MODEL = "gemini-2.0-flash-lite"
 
-# Minimum delay between consecutive Gemini calls to stay under RPM limits
-_RATE_LIMIT_DELAY = 1.0  # seconds
-
+# Minimum delay to stay strictly under the 15 RPM free-tier limit (60s / 15 = 4s)
+_RATE_LIMIT_DELAY = 4.1  # seconds
 
 def _get_client() -> genai.Client:
     global _client
     if _client is None:
         _client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
     return _client
-
 
 PROMPT_TEMPLATE = """\
 You are a job relevance classifier for a recent Computer Science graduate seeking their first or second full-time software engineering role.
@@ -65,17 +63,15 @@ Respond ONLY with a valid JSON object in this exact format (no markdown, no code
 Be strict — only mark RELEVANT if you are confident this is a genuine 0-2 YOE SWE or AI role in the target regions.\
 """
 
-
 def classify(job: dict) -> tuple[str, str]:
     """
     Returns (decision, reason) where decision is "RELEVANT" or "SKIP".
-    Defaults to ("RELEVANT", "...) on error to avoid silent misses.
+    Now uses max 3 retries for quota errors 429, and defaults to RELEVANT
+    so you never miss a job if the server crashes.
     """
     title = job.get("title", "")
     company = job.get("company", "")
     location = job.get("location", "")
-    # Do not truncate description! Minimum requirements are often at the bottom.
-    # gemini-2.0-flash-lite has a massive context window, tokens are not an issue.
     description = job.get("description") or ""
 
     prompt = PROMPT_TEMPLATE.format(
@@ -85,35 +81,43 @@ def classify(job: dict) -> tuple[str, str]:
         description=description or "(no description available)",
     )
 
-    try:
-        client = _get_client()
-        time.sleep(_RATE_LIMIT_DELAY)  # Respect free-tier RPM limits
-        response = client.models.generate_content(
-            model=GEMINI_MODEL,
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                temperature=0.1,  # Low temp for consistent, deterministic classification
-                max_output_tokens=100,
-            ),
-        )
-        text = (response.text or "").strip()
+    client = _get_client()
 
-        # Strip markdown code fences if the model wraps output anyway
-        if text.startswith("```"):
-            lines = text.split("\n")
-            text = "\n".join(
-                line for line in lines if not line.startswith("```")
-            ).strip()
+    for attempt in range(3):
+        try:
+            time.sleep(_RATE_LIMIT_DELAY)  # Respect free-tier 15 RPM limits
+            response = client.models.generate_content(
+                model=GEMINI_MODEL,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    temperature=0.1,
+                    max_output_tokens=100,
+                ),
+            )
+            text = (response.text or "").strip()
 
-        result = json.loads(text)
-        decision = str(result.get("decision", "RELEVANT")).upper()
-        reason = str(result.get("reason", ""))
+            if text.startswith("```"):
+                lines = text.split("\n")
+                text = "\n".join(
+                    line for line in lines if not line.startswith("```")
+                ).strip()
 
-        if decision not in ("RELEVANT", "SKIP"):
-            decision = "SKIP"
+            result = json.loads(text)
+            decision = str(result.get("decision", "RELEVANT")).upper()
+            reason = str(result.get("reason", ""))
 
-        return decision, reason
+            if decision not in ("RELEVANT", "SKIP"):
+                decision = "RELEVANT"
 
-    except Exception as e:
-        logger.warning(f"[tier2] Classification failed for '{title}' — defaulting SKIP: {e}")
-        return "SKIP", "Classification unavailable — excluded by default"
+            return decision, reason
+
+        except Exception as e:
+            err_str = str(e)
+            if "429" in err_str and attempt < 2:
+                logger.warning(f"[tier2] 429 Rate limit hit for '{title}'. Retrying in 15 seconds...")
+                time.sleep(15)
+                continue
+            
+            logger.warning(f"[tier2] Classification failed for '{title}' (attempt {attempt+1}) — defaulting RELEVANT: {e}")
+            # Fail open so the user NEVER misses a job!
+            return "RELEVANT", "Classification unavailable — included by default to prevent missing an opportunity"
