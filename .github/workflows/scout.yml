@@ -1,8 +1,6 @@
 name: Job Scout
 
 on:
-  push:
-    branches: [main]
   schedule:
     # Runs every hour at :00
     - cron: "0 * * * *"
