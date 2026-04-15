@@ -60,7 +60,9 @@ Description (excerpt):
 Respond ONLY with a valid JSON object in this exact format (no markdown, no code fences):
 {{"decision": "RELEVANT" or "SKIP", "reason": "one concise sentence explaining why"}}
 
-Be strict — only mark RELEVANT if you are confident this is a genuine 0-2 YOE SWE or AI role in the target regions.\
+CRITICAL RULES:
+1. If the job description does NOT explicitly state required Years of Experience (YOE), you MUST assume it is 0-2 YOE and mark it RELEVANT.
+2. Only mark SKIP if you explicitly see a requirement for 3+ years of experience, or if it is an internship, or clearly a senior/mislabeled role.\
 """
 
 def classify(job: dict) -> tuple[str, str]:
