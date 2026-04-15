@@ -1,8 +1,10 @@
 name: Job Scout
 
 on:
+  push:
+    branches: [main]
   schedule:
-    # Runs every hour at :00 — adjust freely, minimum is every 5 min on GitHub Actions
+    # Runs every hour at :00
     - cron: "0 * * * *"
   # Allows you to trigger a run manually from the Actions tab in GitHub
   workflow_dispatch:
