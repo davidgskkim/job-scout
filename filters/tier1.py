@@ -92,9 +92,10 @@ EXCLUDE_YOE_PATTERNS = [
     r"(?<![0-9\-\u2013])[1-9][0-9]\+\s*years?\b",
 
     # Ranges: "3-5 years", "4–6 yrs", "10-12 years of experience"
-    r"\b[3-9][-–]\d+\s*(?:years?|yrs?|yoe)\b",
-    r"\b[1-9][0-9][-–]\d+\s*(?:years?|yrs?|yoe)\b",
-    r"\b2[-–][3-9]\s*(?:years?|yrs?|yoe)\b",       # "2-3 years", "2-5 years" (reject) but miss "1-3" (keep)
+    # Handling -, to, and, through
+    r"(?<![0-9\-\u2013])[3-9]\s*(?:-|–|to|and|through)\s*\d+\s*(?:years?|yrs?|yoe)\b",
+    r"(?<![0-9\-\u2013])[1-9][0-9]\s*(?:-|–|to|and|through)\s*\d+\s*(?:years?|yrs?|yoe)\b",
+    r"\b2\s*(?:-|–|to|and|through)\s*[3-9]\d*\s*(?:years?|yrs?|yoe)\b",       # "2-3 years", "2 to 5 years" (reject)
 
     # "3+ yrs", "5 yrs of experience"
     r"(?<![0-9\-\u2013])[3-9]\+?\s*yrs?(?:.{0,120}?)\b(?:experience|exp)\b",
@@ -131,25 +132,9 @@ EXCLUDE_YOE_PATTERNS = [
     r"\b2\+\s*yrs?\b",
     r"\b2\s*\+\s*yoe\b",
 
-    # "2-3 years", "2-4 years", "2-10 years" — lower bound IS 2, goes higher
-    # (same intent as "2+" but written as a range — David is at the floor, not the target)
-    r"\b2[-–][3-9]\d*\s*(?:years?|yrs?|yoe)\b",
-
     # "2 to 3 years", "2 to 5 years"
-    r"\b2\s+to\s+[3-9]\d*\s*(?:years?|yrs?)\b",
-
-    # "between 2 and 3 years", "between 2 and 5 years"
-    r"\bbetween\s+2\s+and\s+[3-9]\d*\s*(?:years?|yrs?)\b",
-
-    # "more than 2 years", "over 2 years"
-    r"\bmore\s+than\s+2\s+years?\b",
-    r"\bover\s+2\s+years?\b",
-
-    # "two or more years", "two+ years"
-    r"\btwo\s+(or\s+more|\+)\s*years?\b",
-
-    # "minimum 2+ years", "at least 2+ years"
-    r"\b(?:minimum|at\s+least)\s+(?:of\s+)?2\+\s*years?\b",
+    r"\b2\s+(or\s+more|\+)\s*(?:years?|yrs?|yoe)\b",
+    r"\b(?:minimum|at\s+least|requires?|more\s+than|over|exceeding)\s+(?:of\s+)?2\+\s*(?:years?|yrs?|yoe)\b",
 ]
 
 # ---------------------------------------------------------------------------
@@ -214,8 +199,15 @@ def is_relevant(job: dict) -> tuple[bool, str, bool]:
         return False, f"Title has excluded term: '{title}'", False
 
     # 3. Description must not require >2 YOE (only check if description exists)
-    if description and _matches_any(description, EXCLUDE_YOE_PATTERNS):
-        return False, "Description requires too many years of experience", False
+    if description:
+        # Matches "1 to 5 years", "0-3 yoe", "one through ten years", "zero to four", etc.
+        # This prevents the filters from seeing a high number that is just the upper bound of a safe range.
+        nums_and_words = r"(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten)"
+        safe_range_pattern = rf"\b(?:zero|0|one|1)\b\s*(?:-|–|to|and|through)\s*{nums_and_words}\s*(?:years?|yrs?|yoe)\b"
+        muzzled_desc = re.sub(safe_range_pattern, "1 year experience", description, flags=re.IGNORECASE)
+        
+        if _matches_any(muzzled_desc, EXCLUDE_YOE_PATTERNS):
+            return False, "Description requires too many years of experience", False
 
     # 4. Explicitly exclude non-target countries BEFORE checking valid locations.
     if location and _matches_any(location, EXCLUDE_LOCATION_PATTERNS):
