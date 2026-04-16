@@ -28,11 +28,11 @@ logger = logging.getLogger(__name__)
 
 _client: genai.Client | None = None
 
-# gemini-2.0-flash-lite: much higher free-tier quota than gemini-2.0-flash
-GEMINI_MODEL = "gemini-2.0-flash-lite"
+# gemini-2.5-flash-lite: Best for high-volume classification on strict budgets.
+GEMINI_MODEL = "gemini-2.5-flash-lite"
 
-# Minimum delay to stay strictly under the 15 RPM free-tier limit (60s / 15 = 4s)
-_RATE_LIMIT_DELAY = 4.1  # seconds
+# Minimum delay to stay strictly under the 10 RPM free-tier limit for 2.5 models (60s / 10 = 6s)
+_RATE_LIMIT_DELAY = 6.1  # seconds
 
 def _get_client() -> genai.Client:
     global _client
