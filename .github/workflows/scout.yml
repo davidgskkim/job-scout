@@ -3,7 +3,7 @@ name: Job Scout
 on:
   schedule:
     # Runs at 17 minutes past the hour. 
-    # (Top-of-the-hour '0' gets severely delayed because millions of repos trigger at the exact same minute on GitHub)
+    # (Top-of-the-hour '0' gets severely delayed because millions of repos trigger at the exact same minute on GitHub).
     - cron: "17 * * * *"
   # Allows you to trigger a run manually from the Actions tab in GitHub
   workflow_dispatch:
