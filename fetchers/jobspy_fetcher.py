@@ -26,7 +26,7 @@ QUERIES = [
     "software engineer"
 ]
 
-SITES = ["linkedin", "indeed"]
+SITES = ["linkedin"]
 LOCATIONS = ["Canada", "United States"]
 
 # Fetch jobs posted within the last 3 hours (generous buffer against GitHub Actions cron delays)
