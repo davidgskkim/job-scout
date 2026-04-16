@@ -16,16 +16,14 @@ from jobspy import scrape_jobs
 
 logger = logging.getLogger(__name__)
 
-# 8 role-type queries — YOE filtering is handled by Tier 1 & 2, not the query string
 QUERIES = [
-    "software engineer",
-    "software developer",
-    "full stack engineer",
-    "full stack developer",
-    "backend engineer",
-    "backend developer",
-    "python developer",
-    "AI engineer",
+    "junior software engineer",
+    "entry level software engineer",
+    "new grad software engineer",
+    "associate software engineer",
+    "junior full stack engineer",
+    "junior backend engineer",
+    "software engineer"
 ]
 
 SITES = ["linkedin", "indeed"]
