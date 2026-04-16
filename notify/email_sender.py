@@ -23,9 +23,9 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-GMAIL_USER = os.environ.get("GMAIL_USER", "")
-GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "")
-TO_EMAIL = os.environ.get("TO_EMAIL", GMAIL_USER)
+GMAIL_USER = os.environ.get("GMAIL_USER", "").strip()
+GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "").strip()
+TO_EMAIL = os.environ.get("TO_EMAIL", GMAIL_USER).strip()
 
 # Source → display label + colour
 SOURCE_META: dict[str, dict] = {
