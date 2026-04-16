@@ -57,7 +57,6 @@ def fetch_jobs() -> list[dict]:
                     location=location,
                     results_wanted=RESULTS_PER_QUERY,
                     hours_old=HOURS_OLD,
-                    country_indeed="usa" if location == "United States" else "canada",
                     linkedin_fetch_description=True,  # fetch full job page, not just preview
                 )
 
