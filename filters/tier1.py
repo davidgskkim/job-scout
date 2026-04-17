@@ -54,6 +54,7 @@ EXCLUDE_TITLE_PATTERNS = [
     r"\bbusiness\s+analyst\b", r"\bsecurity\s+engineer\b", r"\bcybersecurity\b",
     r"\bembedded\s+(systems|engineer|developer)\b",
     r"\bhardware\s+engineer\b", r"\bfirmware\s+engineer\b",
+    r"\bjava\b",  # Exclude strictly backend Java roles
 ]
 
 # ---------------------------------------------------------------------------
