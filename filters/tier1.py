@@ -58,6 +58,15 @@ EXCLUDE_TITLE_PATTERNS = [
 ]
 
 # ---------------------------------------------------------------------------
+# Company patterns — EXCLUDE (any match = reject)
+# ---------------------------------------------------------------------------
+EXCLUDE_COMPANY_PATTERNS = [
+    r"\bmercor\b", 
+    r"\bdataannotation\b", r"\bdata\s*annotation\b",
+    r"\bremotehunter\b", r"\bremote\s*hunter\b",
+]
+
+# ---------------------------------------------------------------------------
 # Title patterns — AUTO PASS (bypass Tier 2 directly to RELEVANT)
 # ---------------------------------------------------------------------------
 AUTO_PASS_TITLE_PATTERNS = [
@@ -191,8 +200,13 @@ def is_relevant(job: dict) -> tuple[bool, str, bool]:
     title = job.get("title", "")
     description = job.get("description", "")
     location = job.get("location", "")
+    company = job.get("company", "")
 
-    # 1. Title must match a valid role
+    # 1. Company must not be in the exclude list
+    if _matches_any(company, EXCLUDE_COMPANY_PATTERNS):
+        return False, f"Company is excluded: '{company}'", False
+
+    # 2. Title must match a valid role
     if not _matches_any(title, INCLUDE_TITLE_PATTERNS):
         return False, f"Title not a target role: '{title}'", False
 
