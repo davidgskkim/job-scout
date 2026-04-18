@@ -98,15 +98,9 @@ def run() -> None:
     # 1. Add auto pass jobs
     final_jobs.extend(auto_pass_jobs)
     
-    # 2. Add LLM passed jobs (max 50 to protect free quota)
-    t2_count = 0
+    # 2. Add LLM passed jobs
     for job in tier1_passed:
-        if t2_count >= 50:
-            logger.warning(f"Tier 2 cap reached (50 jobs). Skipping remaining {len(tier1_passed) - t2_count} jobs to protect quota.")
-            break
-        
         decision, reason = tier2.classify(job)
-        t2_count += 1
         if decision == "RELEVANT":
             job["reason"] = reason
             final_jobs.append(job)
