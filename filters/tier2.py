@@ -93,20 +93,50 @@ def classify(job: dict) -> tuple[str, str]:
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     temperature=0.1,
-                    max_output_tokens=100,
+                    max_output_tokens=200,
+                    safety_settings=[
+                        types.SafetySetting(
+                            category=types.HarmCategory.HARM_CATEGORY_HARASSMENT,
+                            threshold=types.HarmBlockThreshold.BLOCK_NONE,
+                        ),
+                        types.SafetySetting(
+                            category=types.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                            threshold=types.HarmBlockThreshold.BLOCK_NONE,
+                        ),
+                        types.SafetySetting(
+                            category=types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+                            threshold=types.HarmBlockThreshold.BLOCK_NONE,
+                        ),
+                        types.SafetySetting(
+                            category=types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                            threshold=types.HarmBlockThreshold.BLOCK_NONE,
+                        ),
+                    ],
                 ),
             )
-            text = (response.text or "").strip()
+            
+            # Check for safety blocks or empty responses
+            if not response.text:
+                logger.warning(f"[tier2] Empty response/Safety block for '{title}'. candidates: {len(response.candidates)}")
+                raise ValueError("Empty response or safety block triggered")
 
+            text = response.text.strip()
+            
+            # Remove any markdown code fences if present
             if text.startswith("```"):
                 lines = text.split("\n")
                 text = "\n".join(
                     line for line in lines if not line.startswith("```")
                 ).strip()
 
-            result = json.loads(text)
-            decision = str(result.get("decision", "RELEVANT")).upper()
-            reason = str(result.get("reason", ""))
+            try:
+                result = json.loads(text)
+                decision = str(result.get("decision", "RELEVANT")).upper()
+                reason = str(result.get("reason", ""))
+            except json.JSONDecodeError as e:
+                logger.error(f"[tier2] JSON Parse Error for '{title}': {e}. Raw text: {text[:200]}")
+                raise
+
 
             if decision not in ("RELEVANT", "SKIP"):
                 decision = "RELEVANT"
