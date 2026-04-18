@@ -93,10 +93,10 @@ EXCLUDE_YOE_PATTERNS = [
     # ── Minimum required is 3+ ───────────────────────────────────────────────
 
     # Minimum required is 3+
-    # Scan up to 120 chars on the same line to match "experience"
+    # Scan up to 120 chars to match "experience", "building", "developing", etc.
     # (?<![0-9\-\u2013]) prevents matching the upper bound of a range like "1-3 years"
-    r"(?<![0-9\-\u2013])[3-9]\+?\s*years?(?:.{0,120}?)\b(?:experience|exp)\b",
-    r"(?<![0-9\-\u2013])[1-9][0-9]\+?\s*years?(?:.{0,120}?)\b(?:experience|exp)\b",
+    r"(?<![0-9\-\u2013])[3-9]\+?\s*years?(?:[\s\S]{0,120}?)\b(?:experience|exp|building|developing|shipping|engineering|production)\b",
+    r"(?<![0-9\-\u2013])[1-9][0-9]\+?\s*years?(?:[\s\S]{0,120}?)\b(?:experience|exp|building|developing|shipping|engineering|production)\b",
 
     # "3+ years" with explicit "+" even without the word "experience"
     r"(?<![0-9\-\u2013])[3-9]\+\s*years?\b",
@@ -110,9 +110,9 @@ EXCLUDE_YOE_PATTERNS = [
 
     # "3+ yrs", "5 yrs of experience"
     # Making (years?|yrs?) optional if experience/exp is present to catch "5+ experience"
-    r"(?<![0-9\-\u2013])[3-9]\+?\s*(?:years?|yrs?|yoe)?(?:.{0,120}?)\b(?:experience|exp)\b",
+    r"(?<![0-9\-\u2013])[3-9]\+?\s*(?:years?|yrs?|yoe)?(?:[\s\S]{0,120}?)\b(?:experience|exp|building|developing|shipping|engineering|production)\b",
     r"(?<![0-9\-\u2013])[3-9]\+\s*(?:years?|yrs?|yoe)?\b",
-    r"(?<![0-9\-\u2013])[1-9][0-9]\+?\s*(?:years?|yrs?|yoe)?(?:.{0,120}?)\b(?:experience|exp)\b",
+    r"(?<![0-9\-\u2013])[1-9][0-9]\+?\s*(?:years?|yrs?|yoe)?(?:[\s\S]{0,120}?)\b(?:experience|exp|building|developing|shipping|engineering|production)\b",
 
     # YOE abbreviation: "3 YOE", "5+ YOE", "3-7 YOE"
     r"(?<![0-9\-\u2013])[3-9]\+?\s*yoe\b",
