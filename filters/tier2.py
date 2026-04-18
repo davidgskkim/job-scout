@@ -31,8 +31,9 @@ _client: genai.Client | None = None
 # gemini-2.5-flash-lite: Best for high-volume classification on strict budgets.
 GEMINI_MODEL = "gemini-2.5-flash-lite"
 
-# Minimum delay to stay strictly under the 10 RPM free-tier limit for 2.5 models (60s / 10 = 6s)
-_RATE_LIMIT_DELAY = 6.1  # seconds
+# Increased delay (10.1s) to safely stay below the 10 RPM Free Tier limit
+# even if runs overlap or latency is low.
+_RATE_LIMIT_DELAY = 10.1  # seconds
 
 def _get_client() -> genai.Client:
     global _client
