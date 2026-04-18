@@ -66,6 +66,7 @@ EXCLUDE_COMPANY_PATTERNS = [
     r"\bremotehunter\b", r"\bremote\s*hunter\b",
     r"\bhunter\s*bond\b",
     r"\bdice\b",
+    r"\bsundayy\b",
 ]
 
 # ---------------------------------------------------------------------------
