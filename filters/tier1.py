@@ -67,6 +67,7 @@ EXCLUDE_COMPANY_PATTERNS = [
     r"\bhunter\s*bond\b",
     r"\bdice\b",
     r"\bsundayy\b",
+    r"fetchjobs\.co",
 ]
 
 # ---------------------------------------------------------------------------
