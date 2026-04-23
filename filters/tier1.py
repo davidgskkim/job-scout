@@ -26,7 +26,6 @@ INCLUDE_TITLE_PATTERNS = [
     r"\bback[\s\-]?end\s+(engineer|developer|dev)\b",
     r"\bpython\s+(engineer|developer|dev)\b",
     r"\bai\s+(engineer|developer|researcher)\b",
-    r"\bweb\s+(developer|dev|engineer)\b",
     r"\bapplication\s+(developer|engineer)\b",
 ]
 
@@ -55,6 +54,7 @@ EXCLUDE_TITLE_PATTERNS = [
     r"\bembedded\s+(systems|engineer|developer)\b",
     r"\bhardware\s+engineer\b", r"\bfirmware\s+engineer\b",
     r"\bjava\b", r"\bc#", r"\.net\b", r"\bdot\s*net\b",  # Exclude strictly backend Java/C#/.NET roles
+    r"\bweb\s+(developer|dev|engineer)\b",  # Per user request: exclude web-specific titles
 ]
 
 # ---------------------------------------------------------------------------
